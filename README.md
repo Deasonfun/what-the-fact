@@ -2,12 +2,20 @@
 
 ## Project setup
 ```
-npm install
+npm ci
+```
+```
+cd backend
+go get
+```
+### Runs backend API
+```
+go run .
 ```
 
 ### Compiles and hot-reloads for development
 ```
-npm run serve
+npm run serve -- --3000
 ```
 
 ### Compiles and minifies for production
