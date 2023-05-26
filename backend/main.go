@@ -28,9 +28,11 @@ func main() {
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	r := gin.Default()
+	//Start backend web server
+	router := gin.Default()
 
-	r.Use(cors.New(cors.Config{
+	//Set up CORS to accept frontend queries only from localhost:3000
+	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://foo.com"},
 		AllowMethods:     []string{"PUT", "PATCH"},
 		AllowHeaders:     []string{"Origin"},
@@ -41,34 +43,41 @@ func main() {
 		},
 	}))
 
-	client := &http.Client{}
-	r.GET("/test", func(c *gin.Context) {
+	//Create a API route /test
+	router.GET("/test", func(c *gin.Context) {
+		//When status is OK, send out a package with the fact
 		c.JSON(http.StatusOK, gin.H{
-			"fact": GetFact(*client, connectString),
+			//Run the GetFact function and send out the return
+			"fact": GetFact(connectString),
 		})
 	})
 
-	r.Run(":8080")
+	//Run the web server on port 8080
+	router.Run(":8080")
 }
 
-func GetFact(client http.Client, connectString string) (fact string) {
-	var (
-		queryFact string
-	)
+// GetFact funtion will query the SQL database for a fact
+// Accepts the connectionString (string) and returns a fact (string)
+func GetFact(connectString string) (fact string) {
+	var queryFact string
+	//Open the database
 	db, err := sql.Open("postgres", connectString)
 	CheckError(err)
-	rows, err := db.Query("select fact from facts where id=1")
+	//Query the database for a fact
+	rows, err := db.Query("SELECT fact FROM facts WHERE id=1")
 	CheckError(err)
 	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&queryFact)
-		CheckError(err)
-	}
+	//Scan the query and set it to the the queryFact variable
+	err = rows.Scan(&queryFact)
+	CheckError(err)
+	//Check the query for a SQL error
 	err = rows.Err()
 	CheckError(err)
+	//Return fact from database
 	return queryFact
 }
 
+// All errors will be sent to this function to be checked
 func CheckError(err error) {
 	if err != nil {
 		log.Fatal(err)
