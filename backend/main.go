@@ -2,9 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +14,7 @@ import (
 )
 
 func main() {
+	//Load .env file
 	err := godotenv.Load()
 	CheckError(err)
 	host := os.Getenv("HOST")
@@ -24,11 +23,10 @@ func main() {
 	password := os.Getenv("PASSWORD")
 	dbname := os.Getenv("DBNAME")
 
+	//Set up string that will be used to connect to SQL
 	connectString := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
-
-	BuildDB(connectString)
 
 	r := gin.Default()
 
@@ -51,30 +49,6 @@ func main() {
 	})
 
 	r.Run(":8080")
-}
-
-func BuildDB(connectString string) {
-
-	db, err := sql.Open("postgres", connectString)
-	CheckError(err)
-
-	defer db.Close()
-	err = db.Ping()
-	CheckError(err)
-	fmt.Println("Connected to database...")
-
-	factJSON, err := ioutil.ReadFile("./facts.json")
-	CheckError(err)
-
-	var payload map[string]interface{}
-	err = json.Unmarshal([]byte(factJSON), &payload)
-	CheckError(err)
-
-	fmt.Println(payload["fact"])
-	fmt.Println("")
-
-	_, err = db.Exec(fmt.Sprintf("INSERT INTO facts (fact) VALUES('%s')", payload["fact"]))
-	CheckError(err)
 }
 
 func GetFact(client http.Client, connectString string) (fact string) {
