@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"math/rand"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -59,12 +60,23 @@ func main() {
 // GetFact funtion will query the SQL database for a fact
 // Accepts the connectionString (string) and returns a fact (string)
 func GetFact(connectString string) (fact string) {
-	var queryFact string
 	//Open the database
 	db, err := sql.Open("postgres", connectString)
 	CheckError(err)
-	//Query the database for a fact
-	rows, err := db.Query("SELECT fact FROM facts WHERE id=1")
+
+	var count int
+
+	//Query the db to get a count of all the rows
+	err = db.QueryRow("SELECT COUNT(*) FROM facts").Scan(&count)
+	CheckError(err)
+
+	//Get the random ID
+	var randId = rand.Intn(count - 1) + 1
+
+	var queryFact string
+	//Query the database for a fact using the random ID
+	var query = fmt.Sprintf("SELECT fact FROM facts WHERE id=%d", randId)
+	rows, err := db.Query(query)
 	CheckError(err)
 	defer rows.Close()
 	//Scan the query and set it to the the queryFact variable

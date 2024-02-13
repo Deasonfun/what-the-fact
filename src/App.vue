@@ -6,13 +6,14 @@
     </div>
     <div class="card-body">
       <p class="card-text">{{ this.fact }}</p>
-      <a href="#" class="btn btn-success">Next</a>
+      <button @click="NextFact" class="btn btn-success">Next</button>
     </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios';
+
 
   export default {
     name: 'what-the-fact',
@@ -21,6 +22,12 @@
     data() {
       return {
         fact: ''
+      }
+    },
+    methods: {
+      NextFact() {
+        axios.get('http://localhost:8080/test')
+          .then(res => this.fact = res.data.fact)
       }
     },
     async mounted() {
