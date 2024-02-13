@@ -68,8 +68,10 @@ func GetFact(connectString string) (fact string) {
 	CheckError(err)
 	defer rows.Close()
 	//Scan the query and set it to the the queryFact variable
-	err = rows.Scan(&queryFact)
-	CheckError(err)
+	for rows.Next() {
+		err = rows.Scan(&queryFact)
+		CheckError(err)
+	}
 	//Check the query for a SQL error
 	err = rows.Err()
 	CheckError(err)
