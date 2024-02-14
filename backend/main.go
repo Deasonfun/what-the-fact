@@ -44,8 +44,8 @@ func main() {
 		},
 	}))
 
-	//Create a API route /test
-	router.GET("/test", func(c *gin.Context) {
+	//Create a API route /getfact
+	router.GET("/getfact", func(c *gin.Context) {
 		//When status is OK, send out a package with the fact
 		c.JSON(http.StatusOK, gin.H{
 			//Run the GetFact function and send out the return

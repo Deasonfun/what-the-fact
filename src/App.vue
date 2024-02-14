@@ -27,12 +27,12 @@
     },
     methods: {
       NextFact() {
-        axios.get('http://localhost:8080/test')
+        axios.get('http://localhost:8080/getfact')
           .then(res => this.fact = res.data.fact)
       }
     },
     async mounted() {
-      axios.get('http://localhost:8080/test')
+      axios.get('http://localhost:8080/getfact')
         .then(res => this.fact = res.data.fact)
     }
    
